@@ -67,6 +67,7 @@ func main() {
 		if score < 0 {
 			fmt.Println("score cannot be negative")
 		}
+		res[count]["score"] = score
 		switch {
 		case score >= 120:
 			res[count]["grade"] = "A"
@@ -91,8 +92,9 @@ func main() {
 
 	}
 	fmt.Println(res)
-	fmt.Printf("%s scored")
-}
+	fmt.Printf("%s scored %d and has a grade of %s", res[count-1]["name"], res[count-1]["score"], res[count-1]["grade"])
+} // count is like a cycle(we need to increment to append score but wont it as it 2 print the end message)
+// it is like a cycle
 
 /* for {
     // Create a new map for this student
