@@ -1,24 +1,24 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
-	"encoding/json"
-	"io/ioutil"
 )
 
 type task struct {
-	ID          int     `json:"id"`
-	Description string   `json:"description"`
-	Status      string    `json:"status"`
+	ID          int    `json:"id"`
+	Description string `json:"description"`
+	Status      string `json:"status"`
 }
 
-var nextID = 1
 var tasks []task
+var loadedTask []task
 
 func main() {
+	loadTask()
 	if len(os.Args) < 2 {
 		fmt.Println("please enter a command")
 		return
@@ -69,12 +69,13 @@ func main() {
 
 func add(description string) {
 	newTask := task{
-		ID:          nextID,   
+		ID:          geNnextID(),
 		Description: description,
 		Status:      "todo",
 	}
-	nextID++
+
 	tasks = append(tasks, newTask)
+	saveTask()
 	fmt.Println("task successfully added")
 	fmt.Printf("Added task: ID:%d, Description:%s, Status:%s\n", newTask.ID, newTask.Description, newTask.Status)
 }
@@ -98,6 +99,7 @@ func deleteTask(idstr string) {
 		return
 	}
 	tasks = update
+	saveTask()
 	fmt.Println("tasks successfully deleted")
 	listAll()
 }
@@ -119,6 +121,7 @@ func update(idstr, newDesc string) {
 		return
 	}
 	fmt.Println("Task successfully updated")
+	saveTask()
 	listAll()
 }
 func mark(idstr, newStatus string) {
@@ -145,6 +148,7 @@ func mark(idstr, newStatus string) {
 		fmt.Println("ID not found")
 		return
 	}
+	saveTask()
 	fmt.Println("status changed")
 }
 func listAll() {
@@ -187,4 +191,30 @@ func listTaskInprogress() {
 		fmt.Printf("ID:%d, Description:%s, Status:%s\n", t.ID, t.Description, t.Status)
 	}
 
+}
+func saveTask() {
+	data, err := json.MarshalIndent(tasks, "", " ")
+	if err != nil {
+		fmt.Println("Error when converting to json")
+		return
+	}
+	os.WriteFile("tasks.json", data, 0644)
+	fmt.Println("file has been saved")
+}
+func loadTask() {
+	data, err := os.ReadFile("task.json")
+	if err != nil {
+		fmt.Println("error reading file")
+	}
+	json.Unmarshal(data, &loadedTask)
+	tasks = loadedTask
+}
+func geNnextID() int {
+	maxId := 0
+	for _, r := range tasks {
+		if r.ID > maxId {
+			maxId = r.ID
+		}
+	}
+	return maxId + 1
 }
