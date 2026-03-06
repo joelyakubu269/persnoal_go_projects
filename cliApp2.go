@@ -202,7 +202,7 @@ func saveTask() {
 	fmt.Println("file has been saved")
 }
 func loadTask() {
-	data, err := os.ReadFile("task.json")
+	data, err := os.ReadFile("tasks.json")
 	if err != nil {
 		fmt.Println("error reading file")
 	}
